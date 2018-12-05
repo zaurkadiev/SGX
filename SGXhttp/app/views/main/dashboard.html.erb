@@ -1,0 +1,91 @@
+<div class="row">
+  <div class="col-md-12" style="text-align: right">
+    <%= text_field_tag :q, nil, class: 'search-form', id: 'search-form-id', autocomplete: 'off', placeholder: 'Поиск пользователя ...' %>
+    <span class="glyphicon glyphicon-remove-circle" id="clear-search-form-id" aria-hidden="true"></span>
+  </div>
+</div>
+<div class="row" id="result-field-id"></div>
+<%= form_tag('new_task', method: 'post', remote: true, id: 'form-id') do %>
+    <!--<strong>Параметры:</strong>-->
+    <!--<div class="row" style="padding-top:5px;">-->
+      <!--<div class="col-sm-4">-->
+        <!--<div class="list-group">-->
+          <!--<label for="subscriptions" class="list-group-item">-->
+            <!--<% check_box_tag(:subscriptions, true) %>-->
+            <!--Подписки-->
+          <!--</label>-->
+          <!--<label for="friends_list" class="list-group-item">-->
+            <!--<% check_box_tag(:friends_list, true) %>-->
+            <!--Список друзей-->
+          <!--</label>-->
+          <!--<label for="bookmarks" class="list-group-item">-->
+            <!--<% check_box_tag(:bookmarks, true) %>-->
+            <!--Закладки-->
+          <!--</label>-->
+        <!--</div>-->
+      <!--</div>-->
+      <!--<div class="col-sm-4">-->
+        <!--<div class="list-group">-->
+          <!--<label for="gifts" class="list-group-item">-->
+            <!--<% check_box_tag(:gifts, true) %>-->
+            <!--Подарки-->
+          <!--</label>-->
+          <!--<label for="posts" class="list-group-item">-->
+            <!--<% check_box_tag(:posts, true) %>-->
+            <!--Записи пользователя-->
+          <!--</label>-->
+          <!--<label for="photo_marks" class="list-group-item">-->
+            <!--<% check_box_tag(:photo_marks, true) %>-->
+            <!--Отметки на фоторгафиях-->
+          <!--</label>-->
+        <!--</div>-->
+      <!--</div>-->
+      <!--<div class="col-sm-4">-->
+        <!--<div class="list-group">-->
+          <!--<label for="photo_comments" class="list-group-item">-->
+            <!--<% check_box_tag(:photo_comments, true) %>-->
+            <!--Коментарии к фотографиям-->
+          <!--</label>-->
+          <!--<label for="video_comments" class="list-group-item">-->
+            <!--<% check_box_tag(:video_comments, true) %>-->
+            <!--Коментарии к видеозаписям-->
+          <!--</label>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+    <!--<div class="row" style="margin-bottom: 15px;">-->
+      <!--<div class="col-sm-4"></div>-->
+      <!--<div class="col-sm-4">-->
+        <!--&lt;!&ndash;<strong>Дата и время от:</strong>&ndash;&gt;-->
+        <!--<%# date_field_tag :date_start, nil, class: 'form-control', required: true%>-->
+      <!--</div>-->
+    <!--</div>-->
+    <!--<div class="row" style="margin-bottom: 15px;">-->
+      <!--<div class="col-sm-4"></div>-->
+      <!--<div class="col-sm-4">-->
+        <!--&lt;!&ndash;<strong>Дата и время до:</strong>&ndash;&gt;-->
+        <!--<%# date_field_tag :date_end, nil, class: 'form-control', required: true;%>-->
+      <!--</div>-->
+    <!--</div>-->
+    <div class="row">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-4">
+        <strong>Максимальное количество узлов – </strong><strong id="user-range-form-label-id" style="color: #e20600">10</strong>
+        <%= range_field_tag :max_nodes, nil, min:10, max: 200, step: 1, value: 10, id: 'user-range-form-id' %><br>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-4">
+        <strong>Количество рукопожатий</strong>
+        <%= select_tag :level, options_for_select([['Одно рукопожатие', 1], ['Два рукопожатия', 2], ['Три рукопожатия', 3], ['Четыре рукопожатия', 4]]), {class: 'form-control'} %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-4"></div>
+      <div class="col-sm-4">
+        <%= submit_tag 'Начать', class: 'btn btn-primary btn-lg btn-block'%>
+      </div>
+    </div>
+    <%= text_field_tag :cuid, nil, id: 'form-user-id', required: true, type: :hidden %>
+<% end %>

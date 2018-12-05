@@ -1,0 +1,406 @@
+ <div style="width: 300px; position: fixed; z-index: 100; padding-top: 80px; border-right: 1px solid #eee">
+    <div style="padding: 15px; padding-bottom: 0; background: rgba(250,250,250,0.71)" >
+      <div class="row">
+        <div class="col-sm-12" style="text-align: left; padding-right: 0;">
+          <H5 class="scene-toolbar-header">Все узлы</H5>
+          <div id="scene-toolbar-container"></div>
+        </div>
+      </div>
+    </div>
+ </div>
+ <div style="z-index: 40; background: rgba(238,238,238,0.76); width: 100%; position: fixed; border-bottom: 1px solid #eee">
+   <div class="row">
+     <div class="col-xs-4">
+       <div class="row" style="padding-left: 15px;">
+         <div class="col-sm-3">
+           <img src="<%= @user_photo%>" class="img-circle user-card-img" style="width: 60px; height: 60px;">
+         </div>
+         <div class="col-sm-9" style="text-align: left; margin-top: 10px;">
+           <b><%= @user_name %></b>
+           <b><%= @user_last_name %></b><br>
+           <b><%= @nodes_count%></b> узлов,
+           <b><%= @edges_count%></b> связь(ей)<br>
+           <b><%= @level %></b> рукопожатие(ия)<br>
+         </div>
+       </div>
+     </div>
+     <div class="col-xs-8" style="text-align: right">
+
+       <h3 style="text-align: right;">Модуль оценки взаимного влияния пользователей в социальной сети ВКонтакте.</h3>
+     </div>
+   </div>
+ </div>
+ <div id="mynetwork" style="height:100vh; width: 100%; background: #ffffff; float: right;"></div>
+
+
+
+<script type="text/javascript">
+
+  $(document).ready(function(){
+
+      var vert = <%= @nodes %>;
+      var rel = <%= @edges %>;
+      var ciud = <%= @cuid %>;
+
+      var v_size = <%= @nodes.size %>;
+
+      var g = {
+          nodes: [],
+          edges: []
+      };
+
+      vert.forEach(function(item, i, arr) {
+
+          if(item.uid == ciud){
+              g.nodes.push(
+                  {id: item.local_id,
+                      label: item.first_name+" "+item.last_name + "\n" +(item.rank*100).toFixed(2)+"%",
+                      image: item.photo_100, size: item.rank*200 + 2,
+                      color:{
+                        border: "#ea9400"
+                      },
+                      chosen:{
+                          node: function(values, id, selected, hovering) {
+                              nodeSelected(id)
+                          }
+                      },
+                      borderWidth: 5,
+                      mass: ((item.rank + 2*v_size)/2)*1000});
+          } else {
+              g.nodes.push(
+                  {id: item.local_id,
+                      label: item.first_name+" "+item.last_name + "\n" +(item.rank*100).toFixed(2)+"%",
+                      image: item.photo_100,
+                      size: item.rank*200 + 2,
+                      color:{
+                          border: "#bbbbbb"
+                      },
+                      chosen:{
+                        node: function(values, id, selected, hovering) {
+                            nodeSelected(id)
+                        }
+                      },
+                      borderWidth: 1,
+                      mass: ((item.rank + 2*v_size)/2)*500});
+          }
+      });
+
+      rel.forEach(function(item, i, arr) {
+          g.edges.push(
+              {
+                  from: item.src_id,
+                  to: item.dst_id,
+                  selectionWidth: function (width) {
+                      return width*3;
+                  }
+              }
+          )
+      });
+
+      // create a network
+      var container = document.getElementById('mynetwork');
+
+      // provide the data in the vis format
+      var data = {
+          nodes: g.nodes,
+          edges: g.edges
+      };
+      var options = {
+          edges:{
+              arrows: {
+                  to:     {enabled: true, scaleFactor:1, type:'arrow'},
+                  middle: {enabled: false, scaleFactor:1, type:'arrow'},
+                  from:   {enabled: false, scaleFactor:1, type:'arrow'}
+              },
+              color: "#7cb8ff",
+          },
+          nodes:{
+              shape: "circularImage",
+          },
+          layout:{
+              improvedLayout: false
+          },
+          physics:{
+              stabilization: true
+          }
+      };
+
+      // initialize your network!
+      var network = new vis.Network(container, data, options);
+
+      // SORK NODES BY RANK
+      vert = sortVertNodeRank(vert);
+
+      // SHOW ALL NODES IN TOOLBAR
+      vert.forEach(function(item, i, arr) {
+          printNodes(item)
+      });
+
+
+      function nodeSelected(id) {
+          nodes_sorce_ids = [];
+          nodes_dest_ids= [];
+
+          nodes_sorce = [];
+          nodes_dest = [];
+
+          clickedNode = findVertByID(id);
+
+          rel.forEach(function(item, i, arr){
+              if(item.src_id == id){
+                  nodes_sorce_ids.push(item.dst_id);
+              }
+          });
+          rel.forEach(function(item, i, arr){
+              if(item.dst_id == id){
+                  nodes_dest_ids.push(item.src_id);
+              }
+          });
+
+          console.log(nodes_sorce_ids);
+          console.log(nodes_dest_ids);
+
+
+          nodes_sorce_ids.forEach(function(item, i, arr){
+              nodes_sorce.push(findVertByID(item));
+          });
+
+          nodes_dest_ids.forEach(function(item, i, arr){
+              nodes_dest.push(findVertByID(item));
+          });
+
+
+          console.log(nodes_sorce);
+          console.log(nodes_dest);
+
+          $("#scene-toolbar-container").text("");
+          $(".scene-toolbar-header")
+              .text(clickedNode.first_name + " " + clickedNode.last_name + " " + "("+(clickedNode.rank*100).toFixed(2)+"%)");
+
+          nodes_sorce = sortVertNodeRank(nodes_sorce);
+          nodes_dest = sortVertNodeRank(nodes_dest);
+
+          addListHeader("Входные узлы:");
+          nodes_sorce.forEach(function(item, i, arr){
+              printNodes(item);
+          });
+          addListHeader("Выходные узлы:");
+          nodes_dest.forEach(function(item, i, arr){
+              printNodes(item);
+          });
+      }
+
+
+
+      function findVertByID(id){
+          var node;
+          vert.forEach(function(item, i, arr){
+              if(item.local_id == id){
+                  node = item;
+              }
+          });
+          return node;
+      }
+
+
+      function printNodes(item){
+          $("#scene-toolbar-container").append(
+              "<div class='row' style=''>"+
+              "<div class='col-xs-3'>"+
+              "<img src='" + item["photo_100"] + "'class='img-circle user-card-img' style='height:60px;width:60px;'>"+
+              "</div>"+
+              "<div class='col-xs-9' style='text-align:left; margin-top:10px;'>"+
+              "<b>"+item.first_name + " </b>"+
+              "<b>"+item.last_name + " </b><br>"+
+              "Рукопожатия: <b>"+item.level + " </b><br>"+
+              "Ранг: <b>" + (item.rank*100).toFixed(2)+"%</b><br>"+
+              "</div>"+
+              "</div>"
+          )
+      }
+
+      function addListHeader(header){
+          $("#scene-toolbar-container").append(
+              "<h5>"+header+"</h5>"
+          )
+      }
+
+      $("#mynetwork").click(function () {
+          $(".scene-toolbar-header").text("Все узлы");
+          $("#scene-toolbar-container").text("");
+          vert.forEach(function (item) {
+              printNodes(item);
+          })
+      });
+
+
+      function sortVertNodeRank(verts) {
+          verts =  verts.sort(function (a,b) {
+              if (a.rank < b.rank)
+                  return 1;
+              if (a.rank > b.rank)
+                  return -1;
+          });
+          return verts;
+      }
+
+
+
+
+
+//      nodes.forEach(function(item, i, arr) {
+//          g.nodes.push( {id: 'n' + item.local_id, x: Math.random(), y: Math.random(), label: item.first_name + " "+item.rank +" "  + item.last_name, size: item.rank, color: "#999999"});
+//      });
+//
+//      edges.forEach(function(item, i, arr) {
+//          g.edges.push({ id: 'n' + Math.random(), source: 'n' + item.src_id, target: 'n' + item.dst_id, size: item.weigth+10, color: "#ccc"})
+//      });
+//
+//      sigma.classes.graph.addMethod('neighbors', function(nodeId) {
+//          var k,
+//              neighbors = {},
+//              index = this.allNeighborsIndex[nodeId] || {};
+//
+//          for (k in index) {
+//              neighbors[k] = this.nodesIndex[k];
+//          }
+//          return neighbors;
+//      });
+//
+//      s = new sigma({
+//          graph: g,
+//          renderer: {
+//              container: document.getElementById('mynetwork'),
+//              type: 'canvas'
+//          },
+//          settings: {
+//              doubleClickEnabled: false,
+//              minEdgeSize: 0.5,
+//              maxEdgeSize: 2,
+//              minNodeSize: 2,
+//              maxNodeSize: 40,
+//              borderSize: 2,
+//              scalingMode: 'outside',
+//              enableEdgeHovering: true,
+//              edgeHoverColor: 'edge',
+//              defaultEdgeHoverColor: '#000',
+//              edgeHoverSizeRatio: 1,
+//              edgeHoverExtremities: true,
+//              rescaleIgnoreSize: true,
+//              minArrowSize: 200
+//          }
+//      });
+//
+//      s.graph.edges().forEach(function(edge){
+//          edge.type = "arrow";
+//      });
+//
+//
+//      // CHANGE COLOR
+//      s.bind('doubleClickNode', function(e) {
+//          var nodeId = e.data.node.id;
+//          var neighbors = s.graph.neighbors(nodeId);
+//
+//          neighbors[nodeId] = e.data.node;
+//
+//          s.graph.nodes().forEach(function(n) {
+//              if (neighbors[n.id]) {
+//
+//                  if(n.id == nodeId) n.color = "#e69400";
+//                  else
+//                      n.color = "#ffad00";
+//              }
+//              else
+//                  n.color = '#ddd';
+//
+//          });
+//
+//          s.graph.edges().forEach(function(e) {
+//              if (neighbors[e.source] && neighbors[e.target]){
+//
+//                  e.hidden = false;
+//                  e.color = '#00ec03';
+//
+//                  if(e.source == nodeId)
+//                      e.color = "#006aff";
+//                  if(e.target == nodeId)
+//                      e.color = "#ec002c";
+//
+//
+//              }
+//              else{
+//                  e.hidden = true;
+//              }
+//
+//
+//
+//          });
+//
+//          s.refresh();
+//      });
+//
+//      // CREATE LIST CLICK NODE
+//      s.bind('clickNode', function(n) {
+//          var nodeId = n.data.node.id;
+//          var neighbors = s.graph.neighbors(nodeId);
+//          neighbors[nodeId] = n.data.node;
+//
+//          $(" .neigbors_1 ").html("");
+//          $(" .neigbors_2 ").html("");
+//
+//          $(" .selected ").text("USER #" + nodeId);
+//
+//          s.graph.edges().forEach(function(e) {
+//              if (neighbors[e.source] && neighbors[e.target]){
+//
+//                  if(e.target == nodeId){
+//                      $(" .neigbors_1 ").append("<li>" + "<i>from_" + e.source + "</i>" + "<i> to_" + e.target + "</i>" + "</li>");
+//                  }
+//                  if(e.source == nodeId) {
+//                      $(" .neigbors_2 ").append("<li>" + "<i>from_" + e.source + "</i>" + "<i> to_" + e.target + "</i>" + "</li>");
+//                  }
+//              }
+//
+//          });
+//      });
+
+      // STRUCTURIZE GRAPH
+//      s.graph.nodes().forEach(function(n) {
+//
+//          var nodeId = n.id;
+//          var neighbors = s.graph.neighbors(nodeId);
+//          neighbors[nodeId] = n;
+//          s.graph.nodes().forEach(function(n1, index) {
+//              if (neighbors[n1.id]) {
+//
+//
+//                  if( Math.abs(Math.sqrt(Math.pow(n1.x - n.x, 2) + Math.pow(n1.y - n.y, 2))) < 15) {
+//
+//                      n1.x = n.x + Math.cos(2*Math.PI*index/user.nodes.length);
+//                      n1.y = n.y + Math.sin(2*Math.PI*index/user.nodes.length);
+//
+//                  }
+//
+//
+//              }
+//          });
+//      });
+//      s.refresh();
+
+//      // CLICK ON PLATE
+//      s.bind('doubleClickStage', function(n) {
+//          setGraphInitialState(s);
+//      });
+//
+//      // INITIALIZE THE DRAGNODES PLUGIN:
+//      var dragListener = sigma.plugins.dragNodes(s, s.renderers[0]);
+//
+//      // INITIAL GRAPH STATE
+//      setGraphInitialState(s);
+
+
+
+  });
+
+
+</script>

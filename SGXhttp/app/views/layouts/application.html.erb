@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SocialGX</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="https://vk.com/js/api/openapi.js?146" type="text/javascript"></script>
+  <%= csrf_meta_tags %>
+  </head>
+  <body class="main">
+    <input id="access_tocken_vk" type="hidden" value="<%= session[:access_token] %>">
+    <% if flash[:notice] != nil %>
+      <div id="notice" style="text-align: center; font-weight: bold; color: #ffffff;  position: fixed; padding: 20px;
+          bottom: 0; z-index:20; width: 100%; font-size: 14px; background: #ff9e00; "><%= flash[:notice]%></div>
+  <%end%>
+    <!--ALERT-->
+    <div id="alert" hidden></div>
+    <!---->
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4" style="text-align: center; height: 50px;" >
+          <div class="loader2" <%= "hidden" if !$user_list[session[:user_id].to_s] %>>Loading...</div>
+        </div>
+        <div class="col-md-4" style="text-align: right">
+          <% if session[:access_token] != nil %>
+              <div class="btn-group" role="group">
+                <%= link_to "Главная", {action: "dashboard"}, {class: 'btn btn-xs btn-default'}%>
+                <%= link_to "Список исследований", {action: "list"}, {class: 'btn btn-xs btn-default'}%>
+                <%= link_to "Выход", {action: "logout"}, {class: 'btn btn-xs btn-danger'}%>
+              </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="row" style="margin: 15px 0 15px 0; text-align: center">
+        <div class="col-md-12">
+          <h3 style="text-align: center; margin: 50px 0">Модуль оценки взаимного влияния пользователей в социальной сети ВКонтакте.</h3>
+          </b>
+        </div>
+      </div>
+      <%= yield %>
+    </div>
+    <div style="text-align: center"></div>
+  </body>
+</html>

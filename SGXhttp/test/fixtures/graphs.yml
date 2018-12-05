@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  owner_id: MyString
+  cu_id: MyString
+  cu_name: MyString
+
+two:
+  owner_id: MyString
+  cu_id: MyString
+  cu_name: MyString

@@ -1,0 +1,25 @@
+// Place all the styles related to the scene controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.scene-main{
+  overflow-y: hidden;
+}
+.scene-toolbar-header, .scene-header{
+  border-bottom: 1px solid #eeeeee;
+  margin: 0;
+  padding-bottom: 10px;
+}
+#scene-toolbar-container{
+  height: 850px;
+  overflow-x: hidden;
+  overflow-y: scroll
+}
+
+body { height:100vh; }
+#logo-scene{
+  color: #000000;
+  font-size: 40px;
+  display: block;
+  text-shadow: 0 2px 2px #999;
+}

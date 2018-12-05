@@ -1,0 +1,35 @@
+<div class="row">
+  <% if !@graphs.empty? %>
+      <% @graphs.each_with_index {|graph, index|  %>
+
+          <div class="col-xs-3">
+            <% if graph.vertexes %>
+                <%= link_to "scene/#{graph["id"]}", :style => "text-decoration: none; color: #000" do %>
+                  <div class="user-card">
+                    <img src="<%= graph.vertexes.first["photo_100"]%>" class="img-circle user-card-img"><br>
+                    <%= "("+(index+1).to_s+")"%><br>
+                    <b><%= graph.vertexes.first["first_name"] %></b>
+                    <b><%= graph.vertexes.first["last_name"] %></b><br>
+                    <b><%= graph.vertexes.count %></b> узлов<br>
+                    <b><%= graph.edges.count %></b> связь(ей)<br>
+                    <b><%= graph.level %></b> рукопожатие(ия)<br><br>
+                    <%=button_to 'delete/'+graph["id"],method: "get", class: "btn btn-xs btn-danger" do%>
+                      Удалить
+                    <%end%>
+                  </div>
+                <%end%>
+            <%else%>
+                <div class="user-card" style="height: 294px">
+                  <div class="loader">Loading...</div>
+                </div>
+            <%end%>
+          </div>
+      <%} %>
+      <%else%>
+      <div style="text-align: center;"><h4>Пусто</h4></div>
+  <%end%>
+  <%=@q%>
+</div>
+
+
+
